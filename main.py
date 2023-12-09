@@ -48,8 +48,7 @@ def check_data(data_df):
         display(data_df[i].value_counts())
 
 
-if __name__ == "__main__":
-    df = pd.read_csv('data.csv', delimiter=',', )
-    df.columns = df.columns.str.lower().str.replace(' ', '_')
-    check_data(df)
-    print(df.head(10))
+df = pd.read_csv('data.csv', delimiter=',', )
+df.columns = df.columns.str.lower().str.replace(' ', '_')
+check_data(df)
+print(df.head(10))
