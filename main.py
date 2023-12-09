@@ -3,7 +3,7 @@ from IPython.display import display
 
 
 def f(x):
-    if x["promo_code"] == 1.0:
+    if 0 < x["promo_code"] <= 1.0:
         return x["revenue"] * 0.9
     return x["revenue"]
 
@@ -78,3 +78,5 @@ df["region"] = (df["region"].replace("United States", "United States")
 df["device"] = df["device"].replace("android", "Android")
 
 df["channel"] = df["channel"].replace("контексная реклама", "контекстная реклама")
+
+print(df.iloc[487])
