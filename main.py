@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 from IPython.display import display
 
 
@@ -64,3 +63,18 @@ a = ["user_id", "region", "device", "channel", "session_start", "session_end", "
 df = df.drop(df[df[a].isnull().any(axis=1)].index.tolist())  # удаление 13 строк с пропущенными важными данными
 
 df = df.drop(df[df.duplicated(["user_id", "session_start"])].index.tolist())  # удаление 2 дубликатов
+
+df["region"] = (df["region"].replace("United States", "United States")
+                .replace("Frаnce", "France")
+                .replace("Unjted States", "United States")
+                .replace("Germany", "Germany")
+                .replace("UK", "UK")
+                .replace("France", "France")
+                .replace("Frаncе", "France")
+                .replace("Franсe", "France")
+                .replace("germany", "Germany")
+                .replace("UК", "UK"))
+
+df["device"] = df["device"].replace("android", "Android")
+
+df["channel"] = df["channel"].replace("контексная реклама", "контекстная реклама")
