@@ -4,8 +4,9 @@ from IPython.display import display
 
 
 def f(x):
-    if x == 1.0:
-        return x
+    if x["promo_code"] == 1.0:
+        return x["revenue"] * 0.9
+    return x["revenue"]
 
 
 # Напишем функцию для первичной проверки данных
@@ -50,5 +51,16 @@ def check_data(data_df):
 
 df = pd.read_csv('data.csv', delimiter=',', )
 df.columns = df.columns.str.lower().str.replace(' ', '_')
-check_data(df)
-print(df.head(10))
+# check_data(df)
+
+df["total_price"] = df.apply(f, axis=1)  # новый столбец итоговой цены с учетом промокода
+
+date_col_names = ["session_start", "session_end", "session_date", "order_dt"]
+df[date_col_names] = df[date_col_names].apply(pd.to_datetime)  # перевод
+
+a = ["user_id", "region", "device", "channel", "session_start", "session_end", "session_date", "month",
+     "day", "hour_of_day"]
+
+df = df.drop(df[df[a].isnull().any(axis=1)].index.tolist())  # удаление 13 строк с пропущенными важными данными
+
+df = df.drop(df[df.duplicated(["user_id", "session_start"])].index.tolist())  # удаление 2 дубликатов
