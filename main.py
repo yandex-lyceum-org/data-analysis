@@ -8,7 +8,20 @@ def f(x):
         return x["revenue"] * 0.9
     return x["revenue"]
 
+def get_visit_time(x):
+    if time(hour=6) <= x["session_start"].time() < time(hour=10):
+        return "morning"
+    if time(hour=10) <= x["session_start"].time() < time(hour=17):
+        return "afternoon"
+    if time(hour=17) <= x["session_start"].time() < time(hour=22):
+        return "evening"
+    if time(hour=0) <= x["session_start"].time() < time(hour=6) or time(hour=22) <= x["session_start"].time():
+        return "night"
 
+def payer(x):
+    if x > 0:
+        return 1
+    return 0
 # Напишем функцию для первичной проверки данных
 def check_data(data_df):
     print('\033[1m" "Изучим исходные данные" "\033[em')
@@ -80,18 +93,8 @@ df["device"] = df["device"].replace("android", "Android")
 
 df["channel"] = df["channel"].replace("контексная реклама", "контекстная реклама")
 
-
-def get_visit_time(x):
-    if time(hour=6) <= x["session_start"].time() < time(hour=10):
-        return "morning"
-    if time(hour=10) <= x["session_start"].time() < time(hour=17):
-        return "afternoon"
-    if time(hour=17) <= x["session_start"].time() < time(hour=22):
-        return "evening"
-    if time(hour=0) <= x["session_start"].time() < time(hour=6) or time(hour=22) <= x["session_start"].time():
-        return "night"
-
-
 df["visit_time"] = df.apply(get_visit_time, axis=1)
+
+df["payer"] = df["revenue"].map(payer)
 
 print(df)
