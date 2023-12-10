@@ -8,6 +8,7 @@ def f(x):
         return x["revenue"] * 0.9
     return x["revenue"]
 
+
 def get_visit_time(x):
     if time(hour=6) <= x["session_start"].time() < time(hour=10):
         return "morning"
@@ -18,10 +19,13 @@ def get_visit_time(x):
     if time(hour=0) <= x["session_start"].time() < time(hour=6) or time(hour=22) <= x["session_start"].time():
         return "night"
 
+
 def payer(x):
     if x > 0:
         return 1
     return 0
+
+
 # Напишем функцию для первичной проверки данных
 def check_data(data_df):
     print('\033[1m" "Изучим исходные данные" "\033[em')
@@ -64,7 +68,7 @@ def check_data(data_df):
 
 df = pd.read_csv('data.csv', delimiter=',', )
 df.columns = df.columns.str.lower().str.replace(' ', '_')
-# check_data(df)
+df = df.rename(columns={"sessiondurationsec": "session_duration_sec"})
 
 df["total_price"] = df.apply(f, axis=1)  # новый столбец итоговой цены с учетом промокода
 
@@ -97,4 +101,14 @@ df["visit_time"] = df.apply(get_visit_time, axis=1)
 
 df["payer"] = df["revenue"].map(payer)
 
-print(df)
+df["session_start"].apply(lambda x: 2019 <= x.to_pydatetime().year < 2020).all()  # все session_start в 2019 году
+df.apply(lambda x: x["session_start"].date() == x["session_date"].date(),
+         axis=1).all()  # все session_start совпадают с session_date
+df["session_end"].apply(lambda x: x.year == 2019 <= x.to_pydatetime().year < 2020).all()  # все session_end в 2019 году
+
+print(
+    df.apply(lambda x:
+             (x["session_end"] - x["session_start"] - pd.Timedelta(
+                 seconds=x["session_duration_sec"])).nanoseconds > 1000,
+             axis=1).any()
+)  # все session_start + duration примерно < session_end
