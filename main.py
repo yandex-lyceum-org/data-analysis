@@ -7,7 +7,10 @@ def f(x):
         return x["revenue"] * 0.9
     return x["revenue"]
 
-
+def payer(x):
+    if x > 0:
+        return 1
+    return 0
 # Напишем функцию для первичной проверки данных
 def check_data(data_df):
     print('\033[1m" "Изучим исходные данные" "\033[em')
@@ -79,4 +82,6 @@ df["device"] = df["device"].replace("android", "Android")
 
 df["channel"] = df["channel"].replace("контексная реклама", "контекстная реклама")
 
-print(df.iloc[487])
+df["payer"] = df["revenue"].map(payer)
+
+print(df.head(30))
