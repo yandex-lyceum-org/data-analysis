@@ -82,4 +82,11 @@ df.apply(lambda x:
              seconds=x["session_duration_sec"])).nanoseconds > 1000,
          axis=1).any()  # все session_start + duration примерно < session_end
 
-print(df)
+t = df.groupby(["region", "month"])["total_price"].mean().groupby(level="month").nlargest(3).reset_index(
+    allow_duplicates=True)
+# print(.drop(t.columns[0], inplace=True))
+# print(t.drop(t.columns[2], axis=1))
+t.columns.values[2] = 'del'
+t = t.drop("del", axis=1)
+# print(t.rename(columns={"month": 'Courses_Duration'}))
+print(t)
