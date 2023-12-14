@@ -41,7 +41,7 @@ a = ["user_id", "region", "device", "channel", "session_start", "session_end", "
 
 df = df.drop(df[df[a].isnull().any(axis=1)].index.tolist())  # удаление 13 строк с пропущенными важными данными
 
-df = df.drop(df[df.duplicated(["user_id", "session_start"])].index.tolist())  # удаление 2 дубликатов
+df = df.drop(df[df.duplicated(["user_id", "session_start"])].index.tolist())  # удаление 2 полных дубликатов
 
 df["region"] = (df["region"].replace("United States", "United States")
                 .replace("Frаnce", "France")
@@ -86,3 +86,19 @@ df.apply(lambda x:
 t = df.groupby("month")["total_price"].mean().nlargest(3).reset_index()["month"].tolist()  # топ 3 месяца по чеку
 
 t2 = df[df["month"].isin(t)].groupby(["month", "region"])["total_price"].mean()  # с разбивкой на регионы
+
+d = df.groupby(["month", "channel"])["user_id"].count().reset_index()
+
+top3_channels = d.groupby('month').apply(lambda x: x.nlargest(3, 'user_id')).reset_index(drop=True)
+
+len(df["user_id"].unique()), df["user_id"].count()  # все пользователи уникальные
+
+k = pd.DataFrame()
+grouped = df.groupby("channel")
+k["users_amount"] = grouped["user_id"].count()
+k["unique_users_amount"] = grouped["user_id"].apply(lambda x: len(x.unique()))
+k["amount_of_payers"] = grouped["payer"].sum()
+k["total_sum"] = grouped["total_price"].sum()
+k.nlargest(1, "total_sum")  # большая сумма продаж
+k.nlargest(1, "users_amount")  # больше всего пользователей
+
