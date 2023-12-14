@@ -102,6 +102,8 @@ k["total_sum"] = grouped["total_price"].sum()
 k.nlargest(1, "total_sum")  # большая сумма продаж
 k.nlargest(1, "users_amount")  # больше всего пользователей
 
+# TODO: подписать оси на всех графиках
+
 # pie = df["region"].value_counts() / df["region"].count() * 100
 # pie.plot.pie(autopct='%.1f%%')
 # plt.ylabel("")
@@ -117,7 +119,41 @@ k.nlargest(1, "users_amount")  # больше всего пользовател�
 # plt.ylabel("")
 # plt.show()
 
-pie4 = df.groupby("region")["payer"].value_counts()
-pie4.plot.pie(autopct='%.1f%%')
-plt.ylabel("")
-plt.show()
+# pie4 = df.groupby("region")["payer"].value_counts()
+# pie4.plot.pie(autopct='%.1f%%')
+# plt.ylabel("")
+# plt.show()
+
+# pie5 = df.groupby("device")["payer"].value_counts()
+# pie5.plot.pie(autopct='%.1f%%')
+# plt.ylabel("")
+# plt.show()
+
+# pie6 = df.groupby("channel")["payer"].value_counts()
+# pie6.plot.pie(autopct='%.1f%%')
+# plt.ylabel("")
+# plt.show()
+
+# hist = df[df["payer"] == 1].value_counts("month", sort=False)
+# hist.plot.bar(grid=True)
+# plt.show()
+
+# hist2 = df[df["payer"] == 1].value_counts("day", sort=False)
+# hist2.plot.bar(grid=True)
+# plt.show()
+
+# hist3 = df[df["payer"] == 1].value_counts("hour_of_day", sort=False)
+# hist3.plot.bar(grid=True)
+# plt.show()
+
+# ночью покупали больше всего? Это связано с тем, что основные покупатели из Америки, где во время покупок ночь.
+# hist = df[df["payer"] == 1].value_counts("visit_time", sort=False)
+# hist.plot.bar(grid=True)
+# plt.subplots_adjust(bottom=.2)
+# plt.xlabel("")
+# plt.show()
+
+# pie7 = df[df["payer"] == 1].groupby("payment_type").sum("payer")["payer"]
+# pie7.plot.pie(autopct='%.1f%%')
+# plt.ylabel("")
+# plt.show()
