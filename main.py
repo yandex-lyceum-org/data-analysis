@@ -102,3 +102,22 @@ k["total_sum"] = grouped["total_price"].sum()
 k.nlargest(1, "total_sum")  # большая сумма продаж
 k.nlargest(1, "users_amount")  # больше всего пользователей
 
+# pie = df["region"].value_counts() / df["region"].count() * 100
+# pie.plot.pie(autopct='%.1f%%')
+# plt.ylabel("")
+# plt.show()
+#
+# pie2 = df["channel"].value_counts() / df["channel"].count() * 100
+# pie2.plot.pie(autopct='%.1f%%')
+# plt.ylabel("")
+# plt.show()
+#
+# pie3 = df["device"].value_counts() / df["device"].count() * 100
+# pie3.plot.pie(autopct='%.1f%%')
+# plt.ylabel("")
+# plt.show()
+
+pie4 = df.groupby("region")["payer"].value_counts()
+pie4.plot.pie(autopct='%.1f%%')
+plt.ylabel("")
+plt.show()
