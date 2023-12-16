@@ -2,6 +2,8 @@ from datetime import time
 import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
+from scipy.stats import ttest_ind, shapiro, f_oneway, mannwhitneyu, kruskal
+import matplotlib.dates as mpl_dates
 
 
 def f(x):
@@ -157,3 +159,31 @@ k.nlargest(1, "users_amount")  # больше всего пользовател�
 # pie7.plot.pie(autopct='%.1f%%')
 # plt.ylabel("")
 # plt.show()
+
+# print(df["device"].unique())
+
+# print(df[df["payer"] == 1].groupby(["region", "device"])["session_date"].value_counts())
+# df['num_session_date'] = df['session_date'].apply(mpl_dates.date2num)
+#
+# shapiro_test_stat, shapiro_p_value = shapiro(df['num_session_date'])
+# print(f"Тест Шапиро-Уилка для session_date: статистика={shapiro_test_stat}, p-значение={shapiro_p_value}")
+
+# regions = df['region'].unique()
+# for region in regions:
+#     region_data = df[(df['region'] == region) & (df["payer"] == 1)]
+#     devices = region_data['device'].unique()
+#     for device in devices:
+#         device_groups = [region_data[region_data['device'] == outer_device]['session_date'].dt.date for outer_device in devices if outer_device != device]
+#         # Проведем тест Крускала-Уоллиса
+#         stat, p = kruskal(*device_groups)
+#         print(f"Для региона {region}, результат теста: статистика = {stat}, p-значение = {p}\n")
+
+# regions = df['region'].unique()
+# for region in regions:
+#     region_data = df[(df['region'] == region) & (df["payer"] == 1)]
+#     channels = region_data['channel'].unique()
+#     for channel in channels:
+#         groups = [region_data[region_data['channel'] == outer_channel]['session_date'].dt.date for outer_channel in channels if outer_channel != channel]
+#         # Проведем тест Крускала-Уоллиса
+#         stat, p = kruskal(*groups)
+#         print(f"Для региона {region} и канала {channel}, результат теста: статистика = {stat}, p-значение = {p}\n")
