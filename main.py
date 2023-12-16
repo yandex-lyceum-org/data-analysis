@@ -29,6 +29,13 @@ def payer(x):
     return 0
 
 
+def remove_outlier(df_in, col_name):
+    q1 = df_in[col_name].quantile(0.05)
+    q3 = df_in[col_name].quantile(0.95)
+    df_out = df_in.loc[(df_in[col_name] >= q1) & (df_in[col_name] <= q3) | (df_in[col_name].isna())]
+    return df_out
+
+
 df = pd.read_csv('data.csv', delimiter=',', )
 df.columns = df.columns.str.lower().str.replace(' ', '_')
 df = df.rename(columns={"sessiondurationsec": "session_duration_sec"})
@@ -42,6 +49,8 @@ a = ["user_id", "region", "device", "channel", "session_start", "session_end", "
      "day", "hour_of_day"]
 
 df = df.drop(df[df[a].isnull().any(axis=1)].index.tolist())  # удаление 13 строк с пропущенными важными данными
+
+df = remove_outlier(df, "total_price")
 
 df = df.drop(df[df.duplicated(["user_id", "session_start"])].index.tolist())  # удаление 2 полных дубликатов
 
@@ -187,3 +196,13 @@ k.nlargest(1, "users_amount")  # больше всего пользовател�
 #         # Проведем тест Крускала-Уоллиса
 #         stat, p = kruskal(*groups)
 #         print(f"Для региона {region} и канала {channel}, результат теста: статистика = {stat}, p-значение = {p}\n")
+
+
+df[df["payer"] == 1].groupby("region")["total_price"].mean()
+df[df["payer"] == 1].groupby("channel")["total_price"].mean()
+df[df["payer"] == 1].groupby("visit_time")["total_price"].mean()
+
+df[df["payer"] == 1][["session_duration_sec", "total_price"]].corr("spearman")  # корреляции нет
+
+# ax = df[df["payer"] == 1][["session_duration_sec", "total_price"]].plot.scatter(x="session_duration_sec", y = "total_price")
+# plt.show()
