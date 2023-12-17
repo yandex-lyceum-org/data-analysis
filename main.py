@@ -2,7 +2,7 @@ from datetime import time
 import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
-from scipy.stats import ttest_ind, shapiro, f_oneway, mannwhitneyu, kruskal
+from scipy.stats import ttest_ind, shapiro, f_oneway, mannwhitneyu, kruskal, chi2_contingency
 import matplotlib.dates as mpl_dates
 
 
@@ -202,7 +202,16 @@ df[df["payer"] == 1].groupby("region")["total_price"].mean()
 df[df["payer"] == 1].groupby("channel")["total_price"].mean()
 df[df["payer"] == 1].groupby("visit_time")["total_price"].mean()
 
-df[df["payer"] == 1][["session_duration_sec", "total_price"]].corr("spearman")  # корреляции нет
+df[df["payer"] == 1][["session_duration_sec", "total_price"]].corr("spearman")  # корреляции очень слабая
 
-# ax = df[df["payer"] == 1][["session_duration_sec", "total_price"]].plot.scatter(x="session_duration_sec", y = "total_price")
-# plt.show()
+# Гипотеза 1: Влияет ли регион на тип оплаты продукта?
+# cont_table = pd.crosstab(df["region"], df["payment_type"])
+# p_val_payment_type = chi2_contingency(cont_table).pvalue # p = 0.9724 - данные между регионом и типом оплаты независимы
+
+# Гипотеза 2: Влияет ли день недели на кол-во покупок?
+
+# bh = df[df["payer"] == 1]
+# bh = bh.groupby("day")["payer"].count()
+# bh.plot.pie(autopct='%.1f%%')
+# plt.ylabel("")
+# plt.show() # Из диаграммы видно, что особых различий между кол-вом покупок нет. Вывод: день недели не зависит от покупок
