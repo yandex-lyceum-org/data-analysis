@@ -2,7 +2,7 @@ from datetime import time
 import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
-from scipy.stats import ttest_ind, shapiro, f_oneway, mannwhitneyu, kruskal, chi2_contingency
+from scipy.stats import ttest_ind, f_oneway
 import matplotlib.dates as mpl_dates
 
 
@@ -177,25 +177,72 @@ k.nlargest(1, "users_amount")  # больше всего пользовател�
 # shapiro_test_stat, shapiro_p_value = shapiro(df['num_session_date'])
 # print(f"Тест Шапиро-Уилка для session_date: статистика={shapiro_test_stat}, p-значение={shapiro_p_value}")
 
-# regions = df['region'].unique()
-# for region in regions:
-#     region_data = df[(df['region'] == region) & (df["payer"] == 1)]
-#     devices = region_data['device'].unique()
-#     for device in devices:
-#         device_groups = [region_data[region_data['device'] == outer_device]['session_date'].dt.date for outer_device in devices if outer_device != device]
-#         # Проведем тест Крускала-Уоллиса
-#         stat, p = kruskal(*device_groups)
-#         print(f"Для региона {region}, результат теста: статистика = {stat}, p-значение = {p}\n")
+# Первая и вторая гипотеза через ANOVA (не интересно)
 
 # regions = df['region'].unique()
 # for region in regions:
 #     region_data = df[(df['region'] == region) & (df["payer"] == 1)]
+#     reg = region_data.groupby("session_date")["payer"].count().reset_index(name="count")["count"]
+#
+#     devices = region_data['device'].unique()
+#
+#     devices_res = []
+#
+#     for device in devices:
+#         dev = region_data[region_data["device"] == device].groupby("session_date")["payer"].count().reset_index(name="count")["count"]
+#         devices_res.append(dev)
+#
+#     stats, pvalue = f_oneway(*devices_res)
+#     print(region, stats, pvalue)
+#
+# regions = df['region'].unique()
+# for region in regions:
+#     region_data = df[(df['region'] == region) & (df["payer"] == 1)]
+#     reg = region_data.groupby("session_date")["payer"].count().reset_index(name="count")["count"]
+#
+#     channels = region_data['channel'].unique()
+#
+#     channels_res = []
+#
+#     for channel in channels:
+#         dev = region_data[region_data["channel"] == channel].groupby("session_date")["payer"].count().reset_index(name="count")["count"]
+#         channels_res.append(dev)
+#
+#     stats, pvalue = f_oneway(*channels_res)
+#     print(region, stats, pvalue)
+
+# Первая и вторая гипотеза через t-test (интересно для девайсов по usa)
+
+
+# regions = df['region'].unique()
+# for region in regions:
+#     region_data = df[(df['region'] == region) & (df["payer"] == 1)]
+#     reg = region_data.groupby("session_date")["payer"].count().reset_index(name="count")["count"]
+#
+#     devices = region_data['device'].unique()
+#     for device in devices:
+#         dev = region_data[region_data["device"] != device].groupby("session_date")["payer"].count().reset_index(name="count")["count"]
+#         stats, pvalue = ttest_ind(reg, dev)
+#         if pvalue < 0.05:
+#             print("влияет", region, device, stats, pvalue)
+#         else:
+#             print("Не влияет", region, device, stats, pvalue)
+#     print()
+
+# regions = df['region'].unique()
+# for region in regions:
+#     region_data = df[(df['region'] == region) & (df["payer"] == 1)]
+#     reg = region_data.groupby("session_date")["payer"].count().reset_index(name="count")["count"]
+#
 #     channels = region_data['channel'].unique()
 #     for channel in channels:
-#         groups = [region_data[region_data['channel'] == outer_channel]['session_date'].dt.date for outer_channel in channels if outer_channel != channel]
-#         # Проведем тест Крускала-Уоллиса
-#         stat, p = kruskal(*groups)
-#         print(f"Для региона {region} и канала {channel}, результат теста: статистика = {stat}, p-значение = {p}\n")
+#         dev = region_data[region_data["channel"] != channel].groupby("session_date")["payer"].count().reset_index(name="count")["count"]
+#         stats, pvalue = ttest_ind(reg, dev)
+#         if pvalue < 0.05:
+#             print("влияет", region, channel, stats, pvalue)
+#         else:
+#             print("Не влияет", region, channel, stats, pvalue)
+#     print()
 
 
 df[df["payer"] == 1].groupby("region")["total_price"].mean()
