@@ -1,9 +1,12 @@
 from datetime import time
-import seaborn as sns
+
 import pandas as pd
-import matplotlib.pyplot as plt
-from scipy.stats import ttest_ind, f_oneway
-import matplotlib.dates as mpl_dates
+from sklearn.compose import ColumnTransformer
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder
 
 
 def f(x):
@@ -40,7 +43,6 @@ df = pd.read_csv('data.csv', delimiter=',', )
 df.columns = df.columns.str.lower().str.replace(' ', '_')
 df = df.rename(columns={"sessiondurationsec": "session_duration_sec"})
 
-df["total_price"] = df.apply(f, axis=1)  # новый столбец итоговой цены с учетом промокода
 
 date_col_names = ["session_start", "session_end", "session_date", "order_dt"]
 df[date_col_names] = df[date_col_names].apply(pd.to_datetime)  # перевод
@@ -50,9 +52,11 @@ a = ["user_id", "region", "device", "channel", "session_start", "session_end", "
 
 df = df.drop(df[df[a].isnull().any(axis=1)].index.tolist())  # удаление 13 строк с пропущенными важными данными
 
-df = remove_outlier(df, "total_price")
-
 df = df.drop(df[df.duplicated(["user_id", "session_start"])].index.tolist())  # удаление 2 полных дубликатов
+
+df["total_price"] = df.apply(f, axis=1)  # новый столбец итоговой цены с учетом промокода
+
+df = remove_outlier(df, "total_price")
 
 df["region"] = (df["region"].replace("United States", "United States")
                 .replace("Frаnce", "France")
@@ -262,3 +266,79 @@ df[df["payer"] == 1][["session_duration_sec", "total_price"]].corr("spearman")  
 # bh.plot.pie(autopct='%.1f%%')
 # plt.ylabel("")
 # plt.show() # Из диаграммы видно, что особых различий между кол-вом покупок нет. Вывод: день недели не зависит от покупок
+
+# X = df[["region", "channel"]]
+#
+# # print(X)
+#
+# columnTransformer = ColumnTransformer([('encoder', OneHotEncoder(sparse_output=False), ["region", "channel"])],
+#                                       remainder='passthrough')
+# X = columnTransformer.fit_transform(X)
+# # X = pd.DataFrame()
+# # print(X)
+# # X = pd.DataFrame(X)
+# # print(X)
+#
+# y = df["total_price"].fillna(0)
+#
+# # print(y)
+# # print(X)
+#
+# # Разделение на обучающий и тестовый наборы
+# X_train, X_test, y_train, y_test = train_test_split(X, y, shuffle=False)
+#
+# # Построение модели линейной регрессии
+# model = LinearRegression()
+# model.fit(X_train, y_train)
+#
+# # Предсказание на тестовом наборе
+# y_pred = model.predict(X_test)
+#
+# # Оценка качества модели
+# mse = mean_squared_error(y_test, y_pred)
+# r2 = r2_score(y_test, y_pred)
+#
+# print(f'Средняя квадратичная ошибка: {mse}')
+# print(f'R^2: {r2}')
+
+X = df[['region', 'channel', 'payment_type']]
+
+y = pd.DataFrame()
+
+y["total_price"] = df['total_price'].fillna(0)
+y["payer"] = df["payer"]
+print(df.shape)
+print(y.shape, X.shape)
+
+# Разделение на обучающий и тестовый наборы
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, shuffle=False)
+
+# Создание пайплайна для предобработки данных
+categorical_cols = ['region', 'channel', 'payment_type']
+categorical_transformer = Pipeline(steps=[
+    ('onehot', OneHotEncoder(handle_unknown='ignore'))
+])
+
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('cat', categorical_transformer, categorical_cols)
+    ])
+
+# Создание модели линейной регрессии вместе с предобработкой данных
+model = Pipeline(steps=[
+    ('preprocessor', preprocessor),
+    ('regressor', LinearRegression())
+])
+
+# Обучение модели
+model.fit(X_train, y_train)
+
+# Предсказание на тестовом наборе
+y_pred = model.predict(X_test)
+
+# Оценка качества модели
+mse = mean_squared_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+print(f'Средняя квадратичная ошибка: {mse}')
+print(f'R^2: {r2}')
